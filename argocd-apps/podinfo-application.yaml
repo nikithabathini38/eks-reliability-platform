@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: podinfo
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://stefanprodan.github.io/podinfo
+    chart: podinfo
+    targetRevision: "6.7.1"
+    helm:
+      values: |
+        replicaCount: 2
+        resources:
+          requests:
+            cpu: 50m
+            memory: 12Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: podinfo
+
+  syncPolicy:
+    #automated:
+      #prune: true      # remove resources if deleted from source
+      #selfHeal: true    # auto-correct any manual cluster drift
+    syncOptions:
+      - CreateNamespace=true

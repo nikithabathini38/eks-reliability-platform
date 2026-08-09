@@ -26,8 +26,8 @@ spec:
     namespace: podinfo
 
   syncPolicy:
-    #automated:
-      #prune: true      # remove resources if deleted from source
-      #selfHeal: true    # auto-correct any manual cluster drift
+    automated:
+      prune: true      # remove resources if deleted from source
+      selfHeal: true    # auto-correct any manual cluster drift
     syncOptions:
       - CreateNamespace=true

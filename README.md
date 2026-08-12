@@ -47,3 +47,21 @@ Built a Grafana dashboard defining an availability SLO for podinfo:
 Verified end-to-end by generating live traffic against podinfo from inside the mesh
 and confirming the gauge updates in real time, correctly reading ~100% under normal
 conditions with no failing requests.
+
+## Step 5: CI/CD Pipeline (GitHub Actions)
+
+Added a GitHub Actions workflow (`.github/workflows/validate-manifests.yaml`) that
+runs automatically on every push to `main`:
+
+- **YAML lint** — catches syntax errors in manifests before they reach the cluster
+- **Kubeconform validation** — verifies Kubernetes manifests are structurally valid
+  against the K8s API schema
+- **Trivy security scan** — scans manifests for misconfigurations (missing resource
+  limits, running as root, etc.), reporting CRITICAL/HIGH findings
+
+This mirrors how real GitOps teams gate changes before they're synced by ArgoCD —
+catching a broken manifest in CI is far cheaper than debugging it after it's live
+on the cluster. Verified end-to-end: pipeline runs on push, all steps pass
+(lint → validate → scan) in under 30 seconds.
+
+

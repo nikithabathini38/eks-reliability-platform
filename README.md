@@ -26,3 +26,24 @@ splitting failed requests between pods makes it harder for either single
 endpoint to accumulate 3 *consecutive* failures. This is a good illustration of
 how outlier detection interacts with load balancing in a real multi-replica
 service.
+
+## Step 4: Observability Stack (Prometheus + Grafana)
+
+Installed the kube-prometheus-stack Helm chart (Prometheus, Grafana, Alertmanager)
+into a dedicated `monitoring` namespace. Since the Prometheus Operator only scrapes
+targets with a matching ServiceMonitor/PodMonitor, added a custom PodMonitor
+(`monitoring-config/istio-podmonitor.yaml`) so Prometheus picks up metrics from
+Istio's Envoy sidecars — without it, all dashboards showed "No data" despite
+Prometheus and Istio both running correctly.
+
+### SLO Dashboard
+
+Built a Grafana dashboard defining an availability SLO for podinfo:
+
+- **Target**: 99% of requests return a non-5xx response
+- **Query**: `sum(rate(istio_requests_total{destination_service_name="podinfo", response_code!~"5.."}[5m])) / sum(rate(istio_requests_total{destination_service_name="podinfo"}[5m])) * 100`
+- **Visualization**: Gauge panel with threshold coloring — red below 99%, green at/above 99%, so the panel visually signals SLO breach vs. healthy at a glance
+
+Verified end-to-end by generating live traffic against podinfo from inside the mesh
+and confirming the gauge updates in real time, correctly reading ~100% under normal
+conditions with no failing requests.

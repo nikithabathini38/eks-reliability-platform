@@ -64,4 +64,13 @@ catching a broken manifest in CI is far cheaper than debugging it after it's liv
 on the cluster. Verified end-to-end: pipeline runs on push, all steps pass
 (lint → validate → scan) in under 30 seconds.
 
+## Step 6: Incident Review
 
+Simulated two failure scenarios against podinfo — a pod deletion and an Istio
+fault-injection test (delayed + aborted requests) — to validate the platform's
+self-healing and observability end-to-end. Captured a real SLO breach on the
+Grafana dashboard (availability dropped to 67.5%, threshold correctly turned
+red) and documented the full incident, including a subtle Prometheus
+`reporter`-label debugging story.
+
+Full write-up: [incidents/2026-08-13-podinfo-fault-injection.md](incidents/2026-08-13-podinfo-fault-injection.md)

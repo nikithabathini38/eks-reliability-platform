@@ -96,3 +96,15 @@ red) and documented the full incident, including a subtle Prometheus
 `reporter`-label debugging story.
 
 Full write-up: [incidents/2026-08-13-podinfo-fault-injection.md](incidents/2026-08-13-podinfo-fault-injection.md)
+## Step 7: Scaling & Cost Story (Horizontal Pod Autoscaler)
+
+Configured a HorizontalPodAutoscaler (`hpa-config/podinfo-hpa.yaml`) targeting
+50% average CPU utilization, scaling podinfo between 2 and 6 replicas — a local
+stand-in for a Spot-instance/Karpenter cost-optimization story.
+
+**Verified live**: generated concurrent load against podinfo, driving CPU usage
+to 189% of the configured request. The HPA responded by scaling from 2 to 6
+replicas within a few minutes. After stopping the load, replicas scaled back
+down to the minimum of 2 as CPU utilization dropped to 27%, confirming the
+platform automatically both scales up under real pressure and scales back
+down to avoid over-provisioning once demand eases.

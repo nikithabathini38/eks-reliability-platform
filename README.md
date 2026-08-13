@@ -1,5 +1,27 @@
 # eks-reliability-platform
 Local Kubernetes reliability &amp; observability platform — ArgoCD, Istio, Prometheus/Grafana, GitHub Actions
+## Step 1: Local Cluster (minikube)
+
+Set up a local, 2-node Kubernetes cluster using minikube — free, no cloud cost —
+as the foundation for the entire platform:minikube start --nodes2 --cpus4 --memory 6000 --driver=docker 
+Two nodes (rather than one) means Kubernetes actually has to schedule pods
+across real compute boundaries, matching real multi-node cluster behavior.
+
+## Step 2: GitOps Deployment (ArgoCD + Helm)
+
+Installed ArgoCD to manage cluster state declaratively from Git, rather than
+applying changes manually via `kubectl`. Deployed [podinfo](https://github.com/stefanprodan/podinfo)
+(a sample microservice) via Helm, with its ArgoCD Application manifest tracked
+in [`argocd-apps/podinfo-application.yaml`](argocd-apps/podinfo-application.yaml).
+
+Enabled automated sync with self-healing (`syncPolicy.automated.selfHeal: true`)
+so any manual drift from the declared Git state is automatically reverted —
+verified this live by manually scaling podinfo to 5 replicas and watching
+ArgoCD revert it back to the declared `replicaCount: 2` within seconds.
+
+
+
+
 ## Step 3: Istio Service Mesh
 
 Installed Istio (demo profile) on the local minikube cluster and enabled sidecar
